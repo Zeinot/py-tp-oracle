@@ -1,5 +1,6 @@
 import oracledb
 import tkinter as tk
+from tkinter import simpledialog
 from tkcalendar import Calendar
 
 user = "directeur"
@@ -13,7 +14,7 @@ connection = oracledb.connect(
 cursor = connection.cursor()
 
 def SelectStudents():
-    cursor.execute("SELECT IdEt,NomEt, PrenomEt, TO_CHAR(DateNais, 'DD-MON-YYYY') FROM Etudiant")
+    cursor.execute("SELECT IdEt, NomEt, PrenomEt, TO_CHAR(DateNais, 'DD-MON-YYYY') FROM Etudiant")
     rows = cursor.fetchall()
     return rows
 
@@ -22,6 +23,7 @@ def refresh_student_listbox():
     student_listbox.delete(0, tk.END)  # Clear the listbox
     for student in students:
         student_listbox.insert(tk.END, f"{student[0]} | {student[1]} {student[2]} | {student[3]}")
+
 def delete_student():
     selected_student = student_listbox.get(tk.ACTIVE)
     if selected_student:
@@ -29,6 +31,28 @@ def delete_student():
         cursor.execute(f"DELETE FROM Etudiant WHERE IdEt = :id", {"id": student_id})
         connection.commit()
         refresh_student_listbox()
+
+def open_edit_popup():
+    selected_student = student_listbox.get(tk.ACTIVE)
+    if selected_student:
+        parts = selected_student.split(" | ")
+        student_id = parts[0]
+        name_parts = parts[1].split()
+        nom = name_parts[0]
+        prenom = name_parts[1] if len(name_parts) > 1 else ""
+        birthday = parts[2] if len(parts) > 2 else ""
+        
+        new_nom = simpledialog.askstring("Edit Student", "Enter new Nom:", initialvalue=nom)
+        new_prenom = simpledialog.askstring("Edit Student", "Enter new Prenom:", initialvalue=prenom)
+        new_birthday = simpledialog.askstring("Edit Student", "Enter new Birthday (DD-MON-YYYY):", initialvalue=birthday)
+        
+        if new_nom and new_prenom and new_birthday:
+            cursor.execute(f"""
+                UPDATE Etudiant SET NomEt = :nom, PrenomEt = :prenom, DateNais = TO_DATE(:birthday, 'DD-MON-YYYY')
+                WHERE IdEt = :id
+            """, {"nom": new_nom, "prenom": new_prenom, "birthday": new_birthday, "id": student_id})
+            connection.commit()
+            refresh_student_listbox()
 
 # UI
 root = tk.Tk()
@@ -85,6 +109,7 @@ student_listbox.grid(row=7, column=0, columnspan=2, sticky=tk.W+tk.E)
 # Buttons
 tk.Button(root, text='Add', width=25, command=add_student).grid(row=6, column=0, columnspan=2)
 tk.Button(root, text='Delete', width=25, command=delete_student).grid(row=8, column=0, columnspan=2)
+tk.Button(root, text='Edit', width=25, command=open_edit_popup).grid(row=9, column=0, columnspan=2)
 
 # Initial refresh of the student listbox
 refresh_student_listbox()
