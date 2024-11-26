@@ -66,6 +66,9 @@ def add_student():
     connection.commit()
     print(f"New user Nom: {nom}, Prenom: {prenom}, Birthday: {birthday_formatted}")
     SelectStudents()
+    # Clear input fields 
+    e1.delete(0, tk.END) 
+    e2.delete(0, tk.END)
 
 # Map month numbers to abbreviations
 month_names = ["", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
