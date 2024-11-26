@@ -7,8 +7,8 @@ pwd = "admin"
 connection = oracledb.connect(
     user=user,
     password=pwd,
-    host="localhost", 
-    port=1521, 
+    host="localhost",
+    port=1521,
     service_name="scolarite")
 cursor = connection.cursor()
 
@@ -22,6 +22,13 @@ def refresh_student_listbox():
     student_listbox.delete(0, tk.END)  # Clear the listbox
     for student in students:
         student_listbox.insert(tk.END, f"{student[0]} | {student[1]} {student[2]} | {student[3]}")
+def delete_student():
+    selected_student = student_listbox.get(tk.ACTIVE)
+    if selected_student:
+        student_id = selected_student.split(" | ")[0]
+        cursor.execute(f"DELETE FROM Etudiant WHERE IdEt = :id", {"id": student_id})
+        connection.commit()
+        refresh_student_listbox()
 
 # UI
 root = tk.Tk()
@@ -57,7 +64,7 @@ def add_student():
     month, day, year = birthday.split('/')
     birthday_formatted = f"{day}-{month_names[int(month)]}-{year}"
     cursor.execute(f"""
-        INSERT INTO Etudiant (NomEt, PrenomEt, DateNais) 
+        INSERT INTO Etudiant (NomEt, PrenomEt, DateNais)
         VALUES ('{nom}', '{prenom}', TO_DATE('{birthday_formatted}', 'DD-MON-YYYY'))
     """)
     connection.commit()
@@ -75,9 +82,9 @@ month_names = ["", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP"
 student_listbox = tk.Listbox(root)
 student_listbox.grid(row=7, column=0, columnspan=2, sticky=tk.W+tk.E)
 
-# Button
-button = tk.Button(root, text='Add', width=25, command=add_student)
-button.grid(row=6, column=0, columnspan=2)
+# Buttons
+tk.Button(root, text='Add', width=25, command=add_student).grid(row=6, column=0, columnspan=2)
+tk.Button(root, text='Delete', width=25, command=delete_student).grid(row=8, column=0, columnspan=2)
 
 # Initial refresh of the student listbox
 refresh_student_listbox()
