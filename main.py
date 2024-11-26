@@ -77,6 +77,7 @@ def open_edit_popup():
 
 # UI
 root = tk.Tk()
+root.title("Manage Students")
 
 # Title label
 tk.Label(root, text='Add Student').grid(row=3, column=0, columnspan=2)
