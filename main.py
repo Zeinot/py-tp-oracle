@@ -13,18 +13,15 @@ connection = oracledb.connect(
 cursor = connection.cursor()
 
 def SelectStudents():
-    cursor.execute("SELECT * FROM Etudiant")
+    cursor.execute("SELECT NomEt, PrenomEt, TO_CHAR(DateNais, 'DD-MON-YYYY') FROM Etudiant")
     rows = cursor.fetchall()
-    print(rows)
-    print(f"Number of rows: {len(rows)}")
-    if rows:
-        for row in rows:
-            print(row)
-    else:
-        print("No data found.")
-    
+    return rows
 
-SelectStudents()
+def refresh_student_listbox():
+    students = SelectStudents()
+    student_listbox.delete(0, tk.END)  # Clear the listbox
+    for student in students:
+        student_listbox.insert(tk.END, f"{student[0]} {student[1]}, {student[2]}")
 
 # UI
 root = tk.Tk()
@@ -65,17 +62,25 @@ def add_student():
     """)
     connection.commit()
     print(f"New user Nom: {nom}, Prenom: {prenom}, Birthday: {birthday_formatted}")
-    SelectStudents()
-    # Clear input fields 
-    e1.delete(0, tk.END) 
+    # Clear input fields
+    e1.delete(0, tk.END)
     e2.delete(0, tk.END)
+    # Refresh the student listbox
+    refresh_student_listbox()
 
 # Map month numbers to abbreviations
 month_names = ["", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
 
+# Listbox to display students
+student_listbox = tk.Listbox(root)
+student_listbox.grid(row=7, column=0, columnspan=2, sticky=tk.W+tk.E)
+
 # Button
 button = tk.Button(root, text='Add', width=25, command=add_student)
 button.grid(row=6, column=0, columnspan=2)
+
+# Initial refresh of the student listbox
+refresh_student_listbox()
 
 root.mainloop()
 
