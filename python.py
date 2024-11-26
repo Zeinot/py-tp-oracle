@@ -28,8 +28,15 @@ def grad_date():
 # Add Button and Label using grid
 tk.Button(root, text="Select Birthday", command=grad_date).grid(row=1, column=0, columnspan=2)
 
+
+def add_student(): 
+    nom = e1.get() 
+    prenom = e2.get() 
+    birthday = cal.get_date() 
+    print(f"Nom: {nom}, Prenom: {prenom}, Birthday: {birthday}")
+
 # Button
-button = tk.Button(root, text='Add', width=25)
+button = tk.Button(root, text='Add', width=25, command=add_student)
 button.grid(row=6, column=0, columnspan=2)
 
 root.mainloop()
