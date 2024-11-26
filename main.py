@@ -1,6 +1,6 @@
 import oracledb
 import tkinter as tk
-from tkinter import simpledialog
+from tkinter import simpledialog, Toplevel
 from tkcalendar import Calendar
 
 user = "directeur"
@@ -41,18 +41,39 @@ def open_edit_popup():
         nom = name_parts[0]
         prenom = name_parts[1] if len(name_parts) > 1 else ""
         birthday = parts[2] if len(parts) > 2 else ""
-        
-        new_nom = simpledialog.askstring("Edit Student", "Enter new Nom:", initialvalue=nom)
-        new_prenom = simpledialog.askstring("Edit Student", "Enter new Prenom:", initialvalue=prenom)
-        new_birthday = simpledialog.askstring("Edit Student", "Enter new Birthday (DD-MON-YYYY):", initialvalue=birthday)
-        
-        if new_nom and new_prenom and new_birthday:
-            cursor.execute(f"""
-                UPDATE Etudiant SET NomEt = :nom, PrenomEt = :prenom, DateNais = TO_DATE(:birthday, 'DD-MON-YYYY')
-                WHERE IdEt = :id
-            """, {"nom": new_nom, "prenom": new_prenom, "birthday": new_birthday, "id": student_id})
-            connection.commit()
-            refresh_student_listbox()
+
+        edit_popup = Toplevel(root)
+        edit_popup.title("Edit Student")
+
+        tk.Label(edit_popup, text="Enter new Nom:").grid(row=0, column=0)
+        new_nom_entry = tk.Entry(edit_popup)
+        new_nom_entry.grid(row=0, column=1)
+        new_nom_entry.insert(0, nom)
+
+        tk.Label(edit_popup, text="Enter new Prenom:").grid(row=1, column=0)
+        new_prenom_entry = tk.Entry(edit_popup)
+        new_prenom_entry.grid(row=1, column=1)
+        new_prenom_entry.insert(0, prenom)
+
+        tk.Label(edit_popup, text="Select new Birthday:").grid(row=2, column=0, columnspan=2)
+        cal = Calendar(edit_popup, selectmode='day', date_pattern='dd-mm-yyyy')
+        cal.grid(row=3, column=0, columnspan=2)
+
+        def update_student():
+            new_nom = new_nom_entry.get()
+            new_prenom = new_prenom_entry.get()
+            new_birthday = cal.get_date()
+            
+            if new_nom and new_prenom and new_birthday:
+                cursor.execute(f"""
+                    UPDATE Etudiant SET NomEt = :nom, PrenomEt = :prenom, DateNais = TO_DATE(:birthday, 'DD-MM-YYYY')
+                    WHERE IdEt = :id
+                """, {"nom": new_nom, "prenom": new_prenom, "birthday": new_birthday, "id": student_id})
+                connection.commit()
+                refresh_student_listbox()
+                edit_popup.destroy()
+
+        tk.Button(edit_popup, text="Update", command=update_student).grid(row=4, column=0, columnspan=2)
 
 # UI
 root = tk.Tk()
