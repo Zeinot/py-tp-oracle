@@ -10,6 +10,11 @@ connection = oracledb.connect(
 cursor = connection.cursor()
 print("version : ", connection.version)
 
+cursor.execute("""
+               INSERT INTO Etudiant (NomEt, PrenomEt, DateNais) 
+    VALUES ('NEW', 'Jean', TO_DATE('1995-04-15', 'YYYY-MM-DD'))
+    """)
+connection.commit()
 
 
 for row in cursor.execute("SELECT * FROM Etudiant"):
