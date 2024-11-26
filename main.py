@@ -13,7 +13,7 @@ connection = oracledb.connect(
 cursor = connection.cursor()
 
 def SelectStudents():
-    cursor.execute("SELECT NomEt, PrenomEt, TO_CHAR(DateNais, 'DD-MON-YYYY') FROM Etudiant")
+    cursor.execute("SELECT IdEt,NomEt, PrenomEt, TO_CHAR(DateNais, 'DD-MON-YYYY') FROM Etudiant")
     rows = cursor.fetchall()
     return rows
 
@@ -21,7 +21,7 @@ def refresh_student_listbox():
     students = SelectStudents()
     student_listbox.delete(0, tk.END)  # Clear the listbox
     for student in students:
-        student_listbox.insert(tk.END, f"{student[0]} {student[1]}, {student[2]}")
+        student_listbox.insert(tk.END, f"{student[0]} | {student[1]} {student[2]} | {student[3]}")
 
 # UI
 root = tk.Tk()
