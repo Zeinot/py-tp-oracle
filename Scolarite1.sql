@@ -19,10 +19,6 @@ BEGIN
 END;
 /
 
-
-
-
-
 -- Insert data into the Etudiant table
 INSERT INTO Etudiant (NomEt, PrenomEt, DateNais) 
     VALUES ('Dupont', 'Jean', TO_DATE('1995-04-15', 'YYYY-MM-DD'));
