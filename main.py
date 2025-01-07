@@ -1,6 +1,6 @@
 import oracledb
 import tkinter as tk
-from tkinter import simpledialog, Toplevel
+from tkinter import simpledialog, Toplevel, messagebox
 from tkcalendar import Calendar
 
 user = "directeur"
@@ -25,9 +25,14 @@ def refresh_student_listbox():
         student_listbox.insert(tk.END, f"{student[0]} | {student[1]} {student[2]} | {student[3]}")
 
 def delete_student():
-    selected_student = student_listbox.get(tk.ACTIVE)
-    if selected_student:
-        student_id = selected_student.split(" | ")[0]
+    selected_student = student_listbox.curselection()
+    if not selected_student:
+        messagebox.showwarning("Warning", "No student selected")
+        return
+
+    confirm = messagebox.askyesno("Confirm Delete", "Are you sure you want to delete the selected student?")
+    if confirm:
+        student_id = student_listbox.get(selected_student).split(" | ")[0]
         cursor.execute(f"DELETE FROM Etudiant WHERE IdEt = :id", {"id": student_id})
         connection.commit()
         refresh_student_listbox()
